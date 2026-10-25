@@ -1,0 +1,23 @@
+import { config as loadDotenv } from 'dotenv';
+import { fileURLToPath } from 'node:url';
+import { z } from 'zod';
+
+const defaultEnvPath = fileURLToPath(new URL('../../../.env', import.meta.url));
+loadDotenv({ path: process.env.ENV_FILE ?? defaultEnvPath });
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().int().positive().default(3000),
+  DATABASE_URL: z
+    .string()
+    .min(1)
+    .default('postgres://bookking:bookking@localhost:5432/bookking'),
+  SESSION_SECRET: z
+    .string()
+    .min(32)
+    .default('dev-only-session-secret-please-change-me'),
+  APP_TIME_ZONE: z.string().default('America/Bogota')
+});
+
+export type Env = z.infer<typeof envSchema>;
+export const env = envSchema.parse(process.env);
