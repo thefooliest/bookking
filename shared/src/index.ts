@@ -16,3 +16,49 @@ export const EXTRA_SERVICES = [
 ] as const;
 
 export type ExtraServiceCode = (typeof EXTRA_SERVICES)[number]['code'];
+
+export type Room = {
+  id: number;
+  name: string;
+  size: RoomSize;
+  hourlyRate: number;
+};
+
+export type QuoteRequest = {
+  roomId: number;
+  date: string;
+  startTime: string;
+  durationHours: number;
+};
+
+export type PriceBreakdown = {
+  base: number;
+  discount: number;
+  discountPercent: number;
+  surcharge: number;
+  surchargePercent: number;
+  total: number;
+  currency: 'COP';
+};
+
+export type NextAvailableSlot = {
+  startTime: string;
+  endTime: string;
+};
+
+export type QuoteResponse = PriceBreakdown & {
+  room: Room;
+  date: string;
+  startTime: string;
+  endTime: string;
+  durationHours: number;
+  available: boolean;
+  reason: string | null;
+  nextAvailable: NextAvailableSlot | null;
+};
+
+export type ApiErrorBody = {
+  error: string;
+  message: string;
+  details?: unknown;
+};
