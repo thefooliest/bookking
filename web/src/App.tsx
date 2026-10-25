@@ -2,7 +2,11 @@ import { APP_NAME } from '@bookking/shared';
 import { useQuery } from '@tanstack/react-query';
 import { Link, NavLink, Route, Routes, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
+import { RequireAuth } from './auth/RequireAuth';
+import { AdminBookingsPage } from './pages/AdminBookingsPage';
+import { BookingWizardPage } from './pages/BookingWizardPage';
 import { LoginPage } from './pages/LoginPage';
+import { MyBookingsPage } from './pages/MyBookingsPage';
 import { QuotePage } from './pages/QuotePage';
 
 type HealthResponse = {
@@ -92,6 +96,38 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/cotizar" element={<QuotePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/reservar"
+            element={
+              <RequireAuth role="customer">
+                <BookingWizardPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/reservar/:id"
+            element={
+              <RequireAuth role="customer">
+                <BookingWizardPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/mis-reservas"
+            element={
+              <RequireAuth role="customer">
+                <MyBookingsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequireAuth role="admin">
+                <AdminBookingsPage />
+              </RequireAuth>
+            }
+          />
         </Routes>
       </main>
     </div>
