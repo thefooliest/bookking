@@ -132,6 +132,18 @@ export type BookingSummary = {
   confirmedAt: string | null;
 };
 
+export const EMAIL_STATUSES = ['pending', 'sending', 'sent', 'failed'] as const;
+export type EmailStatus = (typeof EMAIL_STATUSES)[number];
+
+export type BookingEmailStatus = {
+  status: EmailStatus;
+  attempts: number;
+  recipient: string;
+  lastError: string | null;
+  nextAttemptAt: string;
+  sentAt: string | null;
+};
+
 export type BookingDetail = BookingSummary & {
   draft: BookingDraft;
   quote: PriceBreakdown | null;
@@ -140,6 +152,7 @@ export type BookingDetail = BookingSummary & {
   cancellationReason: string | null;
   completedAt: string | null;
   cancelledAt: string | null;
+  email: BookingEmailStatus | null;
 };
 
 export type BookingListResponse = {

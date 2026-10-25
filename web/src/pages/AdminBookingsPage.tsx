@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useEffect, useState } from 'react';
 import { ApiError, apiFetch } from '../api/client';
 import {
+  emailStatusLabels,
   formatCurrency,
   formatDateTime,
   statusLabels
@@ -194,6 +195,27 @@ function BookingDetailPanel({
 
       {booking.cancellationReason && (
         <p className="reason">Motivo de cancelación: {booking.cancellationReason}</p>
+      )}
+
+      {booking.email && (
+        <div className={`email-status ${booking.email.status}`}>
+          <div className="email-status-heading">
+            <h3>Correo de confirmación</h3>
+            <span className={`status-pill ${booking.email.status}`}>
+              {emailStatusLabels[booking.email.status]}
+            </span>
+          </div>
+          <p className="hint">
+            {booking.email.recipient} · {booking.email.attempts}{' '}
+            {booking.email.attempts === 1 ? 'intento' : 'intentos'}
+          </p>
+          {booking.email.sentAt && (
+            <p className="hint">Enviado: {formatDateTime(booking.email.sentAt)}</p>
+          )}
+          {booking.email.lastError && (
+            <p className="email-error">{booking.email.lastError}</p>
+          )}
+        </div>
       )}
 
       {error && <p className="error">{error}</p>}

@@ -20,7 +20,10 @@ const envSchema = z.object({
     .string()
     .min(32)
     .default('dev-only-session-secret-please-change-me'),
-  APP_TIME_ZONE: z.string().default('America/Bogota')
+  APP_TIME_ZONE: z.string().default('America/Bogota'),
+  SMTP_HOST: z.string().default('localhost'),
+  SMTP_PORT: z.coerce.number().int().positive().default(1025),
+  SMTP_FROM: z.string().default('Bookking <reservas@bookking.local>')
 });
 
 export type Env = z.infer<typeof envSchema>;

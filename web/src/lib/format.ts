@@ -1,4 +1,8 @@
-import { APP_TIME_ZONE, type BookingStatus } from '@bookking/shared';
+import {
+  APP_TIME_ZONE,
+  type BookingStatus,
+  type EmailStatus
+} from '@bookking/shared';
 
 export const currencyFormatter = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -53,4 +57,11 @@ export const statusLabels: Record<BookingStatus, string> = {
   confirmed: 'Confirmada',
   completed: 'Completada',
   cancelled: 'Cancelada'
+};
+
+export const emailStatusLabels: Record<EmailStatus, string> = {
+  pending: 'Pendiente',
+  sending: 'Enviando',
+  sent: 'Enviado',
+  failed: 'Fallido'
 };

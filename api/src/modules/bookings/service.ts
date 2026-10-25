@@ -9,6 +9,7 @@ import type {
 import { pool } from '../../db/pool.js';
 import { parseDateTime } from '../../lib/datetime.js';
 import { AppError } from '../../lib/errors.js';
+import { enqueueBookingConfirmation } from '../email/booking-confirmation.js';
 import { createQuote } from '../quotes/service.js';
 import {
   createDraftBooking,
@@ -205,6 +206,7 @@ export async function confirmBooking(
     }
 
     if (current.status === 'confirmed') {
+      await enqueueBookingConfirmation(client, id);
       await client.query('COMMIT');
     } else {
       assertTransition(current.status, 'confirmed');
@@ -235,6 +237,7 @@ export async function confirmBooking(
         );
       }
 
+      await enqueueBookingConfirmation(client, id);
       await client.query('COMMIT');
     }
   } catch (error) {

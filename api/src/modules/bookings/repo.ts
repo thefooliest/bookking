@@ -1,11 +1,13 @@
 import {
   EXTRA_SERVICES,
   type BookingDetail,
+  type BookingEmailStatus,
   type BookingDraft,
   type BookingListResponse,
   type BookingServiceLine,
   type BookingStatus,
   type BookingSummary,
+  type EmailStatus,
   type PriceBreakdown,
   type RoomSize,
   type UserRole
@@ -45,6 +47,15 @@ type ServiceRow = {
   code: BookingServiceLine['code'];
   quantity: number;
   unit_price: string;
+};
+
+type EmailRow = {
+  status: EmailStatus;
+  attempts: number;
+  recipient: string;
+  last_error: string | null;
+  next_attempt_at: Date;
+  sent_at: Date | null;
 };
 
 type BookingLockRow = {
@@ -133,6 +144,29 @@ function mapServiceLine(row: ServiceRow): BookingServiceLine {
   };
 }
 
+async function getEmailStatus(bookingId: number): Promise<BookingEmailStatus | null> {
+  const result = await pool.query<EmailRow>(
+    `SELECT status, attempts, recipient, last_error, next_attempt_at, sent_at
+     FROM email_outbox
+     WHERE booking_id = $1 AND kind = 'booking_confirmation'`,
+    [bookingId]
+  );
+
+  const row = result.rows[0];
+  if (!row) {
+    return null;
+  }
+
+  return {
+    status: row.status,
+    attempts: row.attempts,
+    recipient: row.recipient,
+    lastError: row.last_error,
+    nextAttemptAt: toIso(row.next_attempt_at) as string,
+    sentAt: toIso(row.sent_at)
+  };
+}
+
 async function listServices(bookingId: number): Promise<BookingServiceLine[]> {
   const result = await pool.query<ServiceRow>(
     `SELECT code, quantity, unit_price
@@ -168,7 +202,10 @@ export async function getBookingDetail(
     return null;
   }
 
-  const services = await listServices(row.id);
+  const [services, email] = await Promise.all([
+    listServices(row.id),
+    getEmailStatus(row.id)
+  ]);
 
   return {
     ...mapSummary(row),
@@ -178,7 +215,8 @@ export async function getBookingDetail(
     servicesTotal: servicesTotal(services),
     cancellationReason: row.cancellation_reason,
     completedAt: toIso(row.completed_at),
-    cancelledAt: toIso(row.cancelled_at)
+    cancelledAt: toIso(row.cancelled_at),
+    email
   };
 }
 
