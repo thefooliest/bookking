@@ -62,3 +62,19 @@ export type ApiErrorBody = {
   message: string;
   details?: unknown;
 };
+
+export type AuthUser = {
+  id: number;
+  email: string;
+  fullName: string;
+  role: UserRole;
+};
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
+export type AuthResponse = {
+  user: AuthUser | null;
+};
