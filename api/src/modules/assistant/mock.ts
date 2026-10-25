@@ -43,11 +43,13 @@ const currencyFormatter = new Intl.NumberFormat('es-CO', {
 function forbiddenRequest(text: string): boolean {
   const normalized = normalizeText(text);
   return (
-    /\b(ignora|olvida|ignore)\b.*\b(instruccion|regla|prompt|sistema)\b/.test(normalized) ||
-    /\b(system prompt|otras? reservas?|otros? clientes?|reservas? de (otros|clientes)|todos los clientes|inventa|calcula)\b/.test(
+    /\b(ignora|olvida|ignore|disregard|forget)\b.*\b(instruccion|instrucciones|regla|prompt|sistema|instructions?|rules?|system)\b/.test(
       normalized
     ) ||
-    /\b(confirma|confirmar|confirmame|cancela|cancelar|cancelame|elimina|borra)\b/.test(
+    /\b(system prompt|otras? reservas?|todas? las reservas?|otros? clientes?|reservas? de (otros|clientes)|todos los clientes|inventa|calcula|all (bookings?|reservations?)|other (bookings?|reservations?|customers?))\b/.test(
+      normalized
+    ) ||
+    /\b(confirma|confirmar|confirmame|cancela|cancelar|cancelame|elimina|borra|confirm|cancel|delete)\b/.test(
       normalized
     )
   );
