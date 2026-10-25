@@ -1,6 +1,7 @@
 import { APP_NAME } from '@bookking/shared';
 import { useQuery } from '@tanstack/react-query';
-import { NavLink, Route, Routes } from 'react-router-dom';
+import { Link, NavLink, Route, Routes } from 'react-router-dom';
+import { QuotePage } from './pages/QuotePage';
 
 type HealthResponse = {
   status: string;
@@ -25,6 +26,9 @@ function HomePage() {
       <p className="lede">
         Elige una sala, calcula el precio y confirma tu reserva en pocos pasos.
       </p>
+      <Link className="button" to="/cotizar">
+        Cotizar una sala
+      </Link>
       <div className={`status ${health.isSuccess ? 'ok' : 'offline'}`}>
         {health.isPending && 'Comprobando la API...'}
         {health.isError && 'API no disponible. Levanta el backend con npm run dev:api.'}
@@ -42,12 +46,16 @@ export function App() {
           {APP_NAME}
         </NavLink>
         <nav>
-          <NavLink to="/">Inicio</NavLink>
+          <NavLink to="/" end>
+            Inicio
+          </NavLink>
+          <NavLink to="/cotizar">Cotizar</NavLink>
         </nav>
       </header>
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/cotizar" element={<QuotePage />} />
         </Routes>
       </main>
     </div>
