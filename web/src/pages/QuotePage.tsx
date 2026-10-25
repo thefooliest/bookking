@@ -1,27 +1,11 @@
 import type { QuoteRequest, QuoteResponse, Room } from '@bookking/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { type FormEvent, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ApiError, apiFetch } from '../api/client';
+import { currencyFormatter, formatLongDate, today } from '../lib/format';
 
 const durationOptions = Array.from({ length: 19 }, (_, index) => 1 + index * 0.5);
-
-const currencyFormatter = new Intl.NumberFormat('es-CO', {
-  style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0
-});
-
-function today(): string {
-  return new Date().toLocaleDateString('en-CA');
-}
-
-function formatLongDate(date: string): string {
-  return new Date(`${date}T12:00:00`).toLocaleDateString('es-CO', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long'
-  });
-}
 
 function QuoteResult({ quote }: { quote: QuoteResponse }) {
   return (
@@ -67,6 +51,12 @@ function QuoteResult({ quote }: { quote: QuoteResponse }) {
           Siguiente horario disponible ese día: {quote.nextAvailable.startTime} a{' '}
           {quote.nextAvailable.endTime}.
         </p>
+      )}
+
+      {quote.available && (
+        <Link className="button" to="/reservar" state={{ quote }}>
+          Continuar con la reserva
+        </Link>
       )}
     </>
   );
