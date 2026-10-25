@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: bookking
+      POSTGRES_PASSWORD: bookking
+      POSTGRES_DB: bookking
+    ports:
+      - "5433:5432"
+    volumes:
+      - bookking_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookking -d bookking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.32.0
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  bookking_pgdata:

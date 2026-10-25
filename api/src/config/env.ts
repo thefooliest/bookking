@@ -11,7 +11,11 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .min(1)
-    .default('postgres://bookking:bookking@localhost:5432/bookking'),
+    .default('postgres://bookking:bookking@localhost:5433/bookking'),
+  TEST_DATABASE_URL: z
+    .string()
+    .min(1)
+    .default('postgres://bookking:bookking@localhost:5433/bookking_test'),
   SESSION_SECRET: z
     .string()
     .min(32)
