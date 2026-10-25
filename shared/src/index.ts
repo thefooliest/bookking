@@ -10,12 +10,13 @@ export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 export const USER_ROLES = ['customer', 'admin'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+export const EXTRA_SERVICE_CODES = ['projector', 'coffee'] as const;
+export type ExtraServiceCode = (typeof EXTRA_SERVICE_CODES)[number];
+
 export const EXTRA_SERVICES = [
   { code: 'projector', label: 'Proyector', unitPrice: 25000 },
   { code: 'coffee', label: 'Café', unitPrice: 15000 }
 ] as const;
-
-export type ExtraServiceCode = (typeof EXTRA_SERVICES)[number]['code'];
 
 export type Room = {
   id: number;
@@ -77,4 +78,89 @@ export type LoginRequest = {
 
 export type AuthResponse = {
   user: AuthUser | null;
+};
+
+export type CustomerDetails = {
+  fullName: string;
+  email: string;
+  phone: string;
+  company: string | null;
+};
+
+export type BookingSchedule = {
+  roomId: number;
+  date: string;
+  startTime: string;
+  durationHours: number;
+};
+
+export type BookingExtraInput = {
+  code: ExtraServiceCode;
+  quantity: number;
+};
+
+export type BookingDraft = {
+  customer: CustomerDetails | null;
+  schedule: BookingSchedule | null;
+  extras: BookingExtraInput[];
+  notes: string | null;
+};
+
+export type BookingServiceLine = {
+  code: ExtraServiceCode;
+  label: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+};
+
+export type BookingSummary = {
+  id: number;
+  status: BookingStatus;
+  currentStep: number;
+  customer: {
+    id: number;
+    fullName: string;
+    email: string;
+  };
+  room: Room | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  total: number | null;
+  createdAt: string;
+  updatedAt: string;
+  confirmedAt: string | null;
+};
+
+export type BookingDetail = BookingSummary & {
+  draft: BookingDraft;
+  quote: PriceBreakdown | null;
+  services: BookingServiceLine[];
+  servicesTotal: number;
+  cancellationReason: string | null;
+  completedAt: string | null;
+  cancelledAt: string | null;
+};
+
+export type BookingListResponse = {
+  items: BookingSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+export type BookingCreateRequest = {
+  customer?: CustomerDetails;
+};
+
+export type BookingUpdateRequest = {
+  currentStep?: number;
+  customer?: CustomerDetails;
+  schedule?: BookingSchedule;
+  extras?: BookingExtraInput[];
+  notes?: string | null;
+};
+
+export type BookingCancelRequest = {
+  reason: string;
 };

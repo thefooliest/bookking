@@ -4,6 +4,7 @@ import { ZodError } from 'zod';
 import { env } from './config/env.js';
 import { AppError } from './lib/errors.js';
 import { authRoutes } from './modules/auth/routes.js';
+import { bookingRoutes } from './modules/bookings/routes.js';
 import { healthRoutes } from './modules/health/routes.js';
 import { quoteRoutes } from './modules/quotes/routes.js';
 import { roomRoutes } from './modules/rooms/routes.js';
@@ -41,6 +42,7 @@ export function buildApp(): FastifyInstance {
 
   app.register(healthRoutes, { prefix: '/api' });
   app.register(authRoutes, { prefix: '/api' });
+  app.register(bookingRoutes, { prefix: '/api' });
   app.register(roomRoutes, { prefix: '/api' });
   app.register(quoteRoutes, { prefix: '/api' });
 
