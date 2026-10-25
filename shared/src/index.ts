@@ -177,3 +177,26 @@ export type BookingUpdateRequest = {
 export type BookingCancelRequest = {
   reason: string;
 };
+
+export const ASSISTANT_PROVIDERS = ['mock', 'openrouter'] as const;
+export type AssistantProvider = (typeof ASSISTANT_PROVIDERS)[number];
+
+export const ASSISTANT_MESSAGE_ROLES = ['user', 'assistant'] as const;
+export type AssistantMessageRole = (typeof ASSISTANT_MESSAGE_ROLES)[number];
+
+export type AssistantMessage = {
+  id: number;
+  role: AssistantMessageRole;
+  content: string;
+  createdAt: string;
+};
+
+export type AssistantConversation = {
+  provider: AssistantProvider;
+  messages: AssistantMessage[];
+  booking: BookingDetail | null;
+};
+
+export type AssistantChatRequest = {
+  content: string;
+};

@@ -4,6 +4,7 @@ import { Link, NavLink, Route, Routes, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import { RequireAuth } from './auth/RequireAuth';
 import { AdminBookingsPage } from './pages/AdminBookingsPage';
+import { AssistantPage } from './pages/AssistantPage';
 import { BookingWizardPage } from './pages/BookingWizardPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyBookingsPage } from './pages/MyBookingsPage';
@@ -71,6 +72,7 @@ function Topbar() {
           Inicio
         </NavLink>
         <NavLink to="/cotizar">Cotizar</NavLink>
+        {user?.role === 'customer' && <NavLink to="/asistente">Asistente</NavLink>}
         {user?.role === 'customer' && <NavLink to="/mis-reservas">Mis reservas</NavLink>}
         {user?.role === 'admin' && <NavLink to="/admin">Admin</NavLink>}
         {!user && <NavLink to="/login">Ingresar</NavLink>}
@@ -109,6 +111,14 @@ export function App() {
             element={
               <RequireAuth role="customer">
                 <BookingWizardPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/asistente"
+            element={
+              <RequireAuth role="customer">
+                <AssistantPage />
               </RequireAuth>
             }
           />
