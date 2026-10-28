@@ -12,12 +12,16 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  const hasBody = init?.body !== undefined && init?.body !== null;
+
+  if (hasBody && !headers.has('content-type') && !headers.has('Content-Type')) {
+    headers.set('content-type', 'application/json');
+  }
+
   const response = await fetch(path, {
     ...init,
-    headers: {
-      'content-type': 'application/json',
-      ...(init?.headers ?? {})
-    }
+    headers
   });
 
   const body = (await response.json().catch(() => null)) as ApiErrorBody | T | null;
@@ -29,6 +33,10 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
       errorBody?.message ?? 'No fue posible completar la solicitud',
       errorBody?.details
     );
+  }
+
+  if (body === null) {
+    return undefined as T;
   }
 
   return body as T;
