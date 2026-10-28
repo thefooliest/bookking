@@ -39,7 +39,11 @@ export type ProviderAssistantMessage = {
   tool_calls: ProviderToolCall[];
 };
 
-export async function openRouterChat(
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function openRouterChatOnce(
   messages: ProviderMessage[]
 ): Promise<ProviderAssistantMessage> {
   if (!env.OPENROUTER_API_KEY) {
@@ -55,30 +59,43 @@ export async function openRouterChat(
     headers: {
       authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
       'content-type': 'application/json',
-      'x-title': 'Bookking'
+      'x-title': 'Bookking',
+      'HTTP-Referer': 'http://localhost:3000'
     },
     body: JSON.stringify({
       model: env.OPENROUTER_MODEL,
       messages,
       tools: assistantTools,
       tool_choice: 'auto',
-      temperature: 0.2
+      temperature: 0.2,
+      max_tokens: 1024
     }),
-    signal: AbortSignal.timeout(45_000)
+    signal: AbortSignal.timeout(90_000)
   });
 
   const body: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new AppError(
-      502,
-      'ai_provider_error',
-      'El proveedor de IA no respondió correctamente. Intenta de nuevo.'
-    );
+    const errorBody = body as { error?: { message?: string } } | null;
+    const providerMessage =
+      errorBody?.error?.message ??
+      'El proveedor de IA no respondió correctamente. Intenta de nuevo.';
+
+    console.error('[openrouter] error', {
+      status: response.status,
+      model: env.OPENROUTER_MODEL,
+      message: providerMessage
+    });
+
+    throw new AppError(502, 'ai_provider_error', providerMessage);
   }
 
   const parsed = completionSchema.safeParse(body);
   if (!parsed.success) {
+    console.error('[openrouter] invalid response', {
+      model: env.OPENROUTER_MODEL,
+      body
+    });
     throw new AppError(
       502,
       'ai_invalid_response',
@@ -95,4 +112,41 @@ export async function openRouterChat(
     content: message.content ?? null,
     tool_calls: message.tool_calls ?? []
   };
+}
+
+export async function openRouterChat(
+  messages: ProviderMessage[]
+): Promise<ProviderAssistantMessage> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await openRouterChatOnce(messages);
+    } catch (error) {
+      lastError = error;
+
+      if (error instanceof AppError && error.code === 'ai_provider_error') {
+        const message = error.message.toLowerCase();
+        if (
+          message.includes('429') ||
+          message.includes('rate') ||
+          message.includes('temporarily')
+        ) {
+          if (attempt < 2) {
+            const delay = (attempt + 1) * 2000;
+            console.warn(`[openrouter] rate limited, retrying in ${delay}ms`, {
+              attempt: attempt + 1,
+              model: env.OPENROUTER_MODEL
+            });
+            await sleep(delay);
+            continue;
+          }
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  throw lastError as Error;
 }
